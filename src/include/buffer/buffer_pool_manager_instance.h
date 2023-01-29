@@ -15,14 +15,16 @@
 #include <list>
 #include <mutex>  // NOLINT
 #include <unordered_map>
+#include <map>
 
 #include "buffer/buffer_pool_manager.h"
 #include "buffer/lru_k_replacer.h"
 #include "common/config.h"
-#include "container/hash/extendible_hash_table.h"
+// #include "container/hash/extendible_hash_table.h"
 #include "recovery/log_manager.h"
 #include "storage/disk/disk_manager.h"
 #include "storage/page/page.h"
+
 
 namespace bustub {
 
@@ -53,6 +55,19 @@ class BufferPoolManagerInstance : public BufferPoolManager {
   auto GetPages() -> Page * { return pages_; }
 
  protected:
+
+
+  /**
+   * Retrieve a free page by first going through the free list and then using the replacer
+  */
+  auto RetrieveFreePage(frame_id_t *id) -> int;
+
+
+  /** 
+   * Resets page info
+  */
+  void ResetPageInfo(frame_id_t id);
+
   /**
    * TODO(P1): Add implementation
    *
@@ -154,13 +169,15 @@ class BufferPoolManagerInstance : public BufferPoolManager {
   /** Pointer to the log manager. Please ignore this for P1. */
   LogManager *log_manager_ __attribute__((__unused__));
   /** Page table for keeping track of buffer pool pages. */
-  ExtendibleHashTable<page_id_t, frame_id_t> *page_table_;
+  // ExtendibleHashTable<page_id_t, frame_id_t> *page_table_;
   /** Replacer to find unpinned pages for replacement. */
   LRUKReplacer *replacer_;
   /** List of free frames that don't have any pages on them. */
   std::list<frame_id_t> free_list_;
   /** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */
   std::mutex latch_;
+  /** Page Id to Frame Id mapping*/
+  std::map<page_id_t,frame_id_t> page_to_frame_;
 
   /**
    * @brief Allocate a page on disk. Caller should acquire the latch before calling this function.

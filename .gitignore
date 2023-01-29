@@ -243,3 +243,6 @@ docs/dev
 
 # Submission zip files
 *.zip
+build/
+*.png
+.svg
